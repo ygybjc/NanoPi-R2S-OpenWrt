@@ -65,4 +65,4 @@ jobs:
         uses: actions/upload-artifact@v1.0.0
         with:
           name: OpenWrt for NanoPi R2S
-          path: ./bin/targets/*/*/
+          path: lede/bin/
