@@ -1,0 +1,68 @@
+name: OpenWrt for NanoPi R2S
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'build-number'
+    tags-ignore:
+      - build*
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+
+    steps:
+      - name: Setup timezone
+        uses: zcong1993/setup-timezone@v1.0
+        with:
+          timezone: Asia/Shanghai
+
+      - name: Checkout
+        uses: actions/checkout@v2.1.0
+        with:
+          ref: master
+
+      - name: Init Environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          docker rmi `docker images -q`
+          sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d
+          sudo apt-get -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* mysql* php*
+          sudo apt-get update
+          sudo apt-get -y upgrade
+          sudo -E apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler antlr3 gperf swig
+          sudo apt-get -y autoremove --purge
+          sudo apt-get clean
+
+          git config --local user.email "i@shensven.com"
+          git config --local user.name "GenSven"
+          df -h
+
+      - name: Get Source Code
+        run: |
+          git clone https://github.com/coolsnowwolf/lede.git
+          cd lede/
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Generate Configuration File
+        run: |
+          cp config_r2s_shensven lede/.config
+
+      - name: Build OpenWrt
+        run: |
+          cd lede/
+          make defconfig
+          make download -j8
+          find dl -size -1024c -exec rm -f {} \;
+          make -j$(nproc) || make -j1 V=s
+          df -h
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          name: OpenWrt for NanoPi R2S
+          path: ./bin/targets/*/*/
