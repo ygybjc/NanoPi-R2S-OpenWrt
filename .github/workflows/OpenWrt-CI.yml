@@ -57,12 +57,11 @@ jobs:
           cd lede/
           make defconfig
           make download -j8
-          find dl -size -1024c -exec rm -f {} \;
           make -j$(nproc) || make -j1 V=s
           df -h
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v1.0.0
         with:
-          name: OpenWrt for NanoPi R2S
+          name: OpenWrt_for_NanoPi_R2S
           path: lede/bin/
