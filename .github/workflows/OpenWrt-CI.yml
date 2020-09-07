@@ -1,4 +1,4 @@
-name: OpenWrt for NanoPi R2S
+name: OpenWrtNanoPi R2S
 
 on:
   push:
