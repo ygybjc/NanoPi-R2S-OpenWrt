@@ -1,4 +1,4 @@
-name: OpenWrtNanoPi R2S
+name: OpenWrtNanoPi R2Sbb
 
 on:
   push:
